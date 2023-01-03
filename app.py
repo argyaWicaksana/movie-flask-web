@@ -1,10 +1,10 @@
-import requests, os
-# import os
+import requests, os, json
 from flask import Flask, render_template, request, jsonify
 from pymongo import MongoClient
 from bs4 import BeautifulSoup
 from os.path import join, dirname
 from dotenv import load_dotenv
+from bson import json_util, ObjectId
 
 dotenv_path = join(dirname(__file__), '.env')
 load_dotenv(dotenv_path)
@@ -16,6 +16,10 @@ client = MongoClient(MONGODB_URI)
 db = client[DB_NAME]
 
 app = Flask(__name__)
+
+def parse_json(data):
+    data = json.loads(json_util.dumps(data))
+    return data
 
 @app.route('/')
 def home():
@@ -55,8 +59,29 @@ def movie_post():
 
 @app.route('/movie', methods=['GET'])
 def movie_get():
-    list_movie = list(db.movies.find({}, {'_id': False}))
-    return jsonify({'movies': list_movie})
+    list_movie = list(db.movies.find())
+    return parse_json(list_movie)
+
+@app.route('/movie/update', methods=['POST'])
+def movie_update():
+    movie_id = request.form['id']
+    rating = request.form['rating']
+    comment = request.form['comment']
+    db.movies.update_one({'_id': ObjectId(movie_id)}, {
+        '$set': {
+            'rating': rating,
+            'comment': comment
+        }
+    })
+    
+    return jsonify({'msg': 'Updated successfully!'})
+
+@app.route('/movie/delete', methods=['POST'])
+def movie_delete():
+    movie_id = request.form['id']
+    db.movies.delete_one({'_id': ObjectId(movie_id)})
+    
+    return jsonify({'msg': 'Deleted successfully!'})
 
 if __name__ == '__main__':
     app.run('localhost', port=5000, debug=True)
