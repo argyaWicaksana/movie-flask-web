@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 from os.path import join, dirname
 from dotenv import load_dotenv
 from bson import json_util, ObjectId
+from flask_cors import CORS
 
 dotenv_path = join(dirname(__file__), '.env')
 load_dotenv(dotenv_path)
@@ -16,6 +17,7 @@ client = MongoClient(MONGODB_URI)
 db = client[DB_NAME]
 
 app = Flask(__name__)
+CORS(app, origins="http://localhost:5173")
 
 def parse_json(data):
     data = json.loads(json_util.dumps(data))
