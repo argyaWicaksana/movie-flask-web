@@ -3,9 +3,12 @@ import {
   CardFooter, Stack, Heading,
   Text, Button, ButtonGroup
 } from '@chakra-ui/react'
-import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
+import { DeleteIcon, EditIcon } from "@chakra-ui/icons"
+import { useState } from 'react'
+import ModalForm from './ModalForm'
 
 interface Movie {
+  _id: { $oid: '' },
   image: string,
   title: string,
   desc: string,
@@ -15,15 +18,43 @@ interface Movie {
 
 export default function MovieCard(props: any) {
   const movie: Movie = props.movie
+  const movieId: string = movie._id.$oid
+  const [linesShowed, setLinesShowed] = useState<3 | undefined>(3)
+
+  const onMoreOrLess = () => {
+    if (linesShowed) setLinesShowed(undefined)
+    else setLinesShowed(3)
+  }
+
+  async function deleteMovie() {
+    try {
+      await fetch('http://localhost:5000/movie/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: movieId
+        })
+      })
+    } catch (error) {
+      console.log(error)
+    }
+
+    props.reload()
+  }
 
   return (
     <Card maxW='sm' _hover={{ shadow: 'xl' }} borderWidth='1px' borderColor='blackAlpha.300'>
       <CardBody>
         <Image src={movie.image}
-          alt='Test' borderRadius='lg' />
+          alt='Movie Image' borderRadius='lg' />
         <Stack mt='5' spacing={6}>
           <Heading size='md'>{movie.title}</Heading>
-          <Text noOfLines={3}>{movie.desc}</Text>
+          <div>
+            <Text noOfLines={linesShowed}>{movie.desc}</Text>
+            <Button onClick={onMoreOrLess} variant='link' colorScheme='blue'>
+              {linesShowed ? 'Read more' : 'Show less'}
+            </Button>
+          </div>
           <Stack>
             <Text>{'⭐'.repeat(movie.rating)}</Text>
             <Text color='gray.500'>{movie.comment}</Text>
@@ -32,8 +63,8 @@ export default function MovieCard(props: any) {
       </CardBody>
       <CardFooter>
         <ButtonGroup>
-          <Button colorScheme='blue'><EditIcon /></Button>
-          <Button colorScheme='red'><DeleteIcon /></Button>
+          <ModalForm reload={props.reload} colorScheme='blue' dataMovie={movie}><EditIcon /></ModalForm>
+          <Button colorScheme='red' onClick={deleteMovie}><DeleteIcon /></Button>
         </ButtonGroup>
       </CardFooter>
     </Card>

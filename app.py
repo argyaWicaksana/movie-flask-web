@@ -30,9 +30,9 @@ def home():
 
 @app.route('/movie', methods=['POST'])
 def movie_post():
-    url = request.form['url']
-    rating = request.form['star']
-    comment = request.form['comment']
+    url = request.json['url']
+    rating = request.json['rating']
+    comment = request.json['comment']
     headers = { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'}
 
     data = requests.get(url, headers=headers)
@@ -66,9 +66,9 @@ def movie_get():
 
 @app.route('/movie/update', methods=['POST'])
 def movie_update():
-    movie_id = request.form['id']
-    rating = request.form['rating']
-    comment = request.form['comment']
+    movie_id = request.json['id']
+    rating = request.json['rating']
+    comment = request.json['comment']
     db.movies.update_one({'_id': ObjectId(movie_id)}, {
         '$set': {
             'rating': rating,
@@ -80,7 +80,7 @@ def movie_update():
 
 @app.route('/movie/delete', methods=['POST'])
 def movie_delete():
-    movie_id = request.form['id']
+    movie_id = request.json['id']
     db.movies.delete_one({'_id': ObjectId(movie_id)})
     
     return jsonify({'msg': 'Deleted successfully!'})

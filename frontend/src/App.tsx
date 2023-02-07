@@ -38,22 +38,26 @@ function App() {
   }])
 
   async function getMovies() {
-    const response = await fetch('http://localhost:5000/movie')
-    
-    setMovies(await response.json())
+    try {
+      const response = await fetch('http://localhost:5000/movie')
+
+      setMovies(await response.json())
+    } catch (error) {
+      console.log(error)
+    }
   }
 
-  useEffect(()=>{ getMovies() }, [])
+  useEffect(() => { getMovies() }, [])
 
   return (
     <Stack spacing='40px'>
-      <Header onClick={()=> setShown(!shown)}/>
-      { shown && <Form /> }
+      <Header onClick={() => setShown(!shown)} />
+      {shown && <Form  onCancel={()=> setShown(false)} reload={getMovies} />}
       <Flex justify='center'>
         <SimpleGrid minChildWidth='280px' width='95%' maxW='1200px' spacing='25px'>
           {
-            movies.map((m)=> (
-              <MovieCard key={m._id.$oid} movie={m}/>
+            movies.map((m) => (
+              <MovieCard key={m._id.$oid} movie={m} reload={getMovies} />
             ))
           }
         </SimpleGrid>
