@@ -28,15 +28,23 @@ export default function MovieCard(props: any) {
 
   async function deleteMovie() {
     try {
-      await fetch('http://localhost:5000/movie/delete', {
+      const rawResp = await fetch('http://localhost:5000/movie/delete', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           id: movieId
         })
       })
-    } catch (error) {
-      console.log(error)
+      const response = await rawResp.json()
+      props.changeAlert({
+        ...response,
+        status: 'success'
+      })
+    } catch (error: any) {
+      props.changeAlert({
+        msg: error.message,
+        status: 'error'
+      })
     }
 
     props.reload()
@@ -63,7 +71,7 @@ export default function MovieCard(props: any) {
       </CardBody>
       <CardFooter>
         <ButtonGroup>
-          <ModalForm reload={props.reload} colorScheme='blue' dataMovie={movie}><EditIcon /></ModalForm>
+          <ModalForm changeAlert={props.changeAlert} reload={props.reload} colorScheme='blue' dataMovie={movie}><EditIcon /></ModalForm>
           <Button colorScheme='red' onClick={deleteMovie}><DeleteIcon /></Button>
         </ButtonGroup>
       </CardFooter>

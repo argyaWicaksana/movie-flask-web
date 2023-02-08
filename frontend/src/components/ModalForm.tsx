@@ -13,7 +13,7 @@ interface Movie {
   comment: string
 }
 
-export default function ModalForm({ children, colorScheme, dataMovie, reload }: any) {
+export default function ModalForm({ children, colorScheme, dataMovie, reload, changeAlert }: any) {
     const { isOpen, onOpen, onClose } = useDisclosure()
     const [data, setData] = React.useState<Movie>(dataMovie)
 
@@ -44,9 +44,15 @@ export default function ModalForm({ children, colorScheme, dataMovie, reload }: 
                 })
             })
             const response = await rawResp.json()
-            console.log(response)
-        } catch (error) {
-            console.log(error)
+            changeAlert({
+                ...response,
+                status: 'success'
+            })
+        } catch (error: any) {
+            changeAlert({
+                msg: error.message,
+                status: 'error'
+            })
         }
 
         reload()

@@ -5,7 +5,7 @@ import {
 } from "@chakra-ui/react";
 import { useState } from "react"
 
-export default function Form({ reload, onCancel }: any) {
+export default function Form({ reload, onCancel, changeAlert }: any) {
     const [data, setData] = useState({
         url: '',
         rating: '',
@@ -23,7 +23,7 @@ export default function Form({ reload, onCancel }: any) {
         e.preventDefault()
 
         try {
-            const response = await fetch('http://localhost:5000/movie', {
+            const rawResp = await fetch('http://localhost:5000/movie', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -32,10 +32,16 @@ export default function Form({ reload, onCancel }: any) {
                     comment: data.comment
                 })
             })
-            const resp: { msg: string } = await response.json()
-            console.log(resp)
-        } catch (error) {
-            console.log(error)
+            const response = await rawResp.json()
+            changeAlert({
+                ...response,
+                status: 'success'
+            })
+        } catch (error: any) {
+            changeAlert({
+                msg: error.message,
+                status: 'error'
+            })
         }
 
         reload()

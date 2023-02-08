@@ -3,9 +3,16 @@ import MovieCard from './components/MovieCard'
 import Form from './components/Form'
 import {
   Flex, Button, Heading,
-  SimpleGrid, Stack
+  SimpleGrid, Stack, Alert,
+  AlertIcon, useDisclosure
 } from '@chakra-ui/react';
 import './App.css'
+
+interface AlertData {
+  show: boolean,
+  msg: string,
+  status: 'success' | 'error'
+}
 
 function Header(props: any) {
   const buttonHover = {
@@ -36,14 +43,34 @@ function App() {
   const [movies, setMovies] = useState([{
     _id: { $oid: '' }
   }])
+  const [alert, setAlert] = useState<AlertData>({
+    show: false,
+    msg: '',
+    status: 'error'
+  })
+
+  function changeAlert(data: Omit<AlertData, 'show'>) {
+    setAlert({
+      ...data,
+      show: true
+    })
+
+    setTimeout(() => {
+      setAlert({
+        show: false,
+        msg: '',
+        status: 'error'
+      })
+    }, 3000);
+  }
 
   async function getMovies() {
     try {
       const response = await fetch('http://localhost:5000/movie')
 
       setMovies(await response.json())
-    } catch (error) {
-      console.log(error)
+    } catch (error: any) {
+      console.log(error.message)
     }
   }
 
@@ -51,13 +78,20 @@ function App() {
 
   return (
     <Stack spacing='40px'>
+      {
+        alert.show &&
+        <Alert zIndex={'overlay'} position='fixed' status={alert.status}>
+          <AlertIcon />
+          {alert.msg}
+        </Alert>
+      }
       <Header onClick={() => setShown(!shown)} />
-      {shown && <Form  onCancel={()=> setShown(false)} reload={getMovies} />}
+      {shown && <Form onCancel={() => setShown(false)} reload={getMovies} changeAlert={changeAlert} />}
       <Flex justify='center'>
         <SimpleGrid minChildWidth='280px' width='95%' maxW='1200px' spacing='25px'>
           {
             movies.map((m) => (
-              <MovieCard key={m._id.$oid} movie={m} reload={getMovies} />
+              <MovieCard key={m._id.$oid} movie={m} reload={getMovies} changeAlert={changeAlert} />
             ))
           }
         </SimpleGrid>
