@@ -23,10 +23,6 @@ def parse_json(data):
     data = json.loads(json_util.dumps(data))
     return data
 
-@app.route('/')
-def home():
-    return render_template('index.html')
-
 
 @app.route('/movie', methods=['POST'])
 def movie_post():
