@@ -27,7 +27,7 @@ function Header(props: any) {
       height={250}
       color='white'
       bgImg='linear-gradient(0deg, rgba(0, 0, 0, 0.5), 
-      rgba(0, 0, 0, 0.5)), url("https://movie-phinf.pstatic.net/20210715_95/1626338192428gTnJl_JPEG/movie_image.jpg")'
+      rgba(0, 0, 0, 0.5)), url("../public/images/bg-header.jpg")'
       bgPos='center'
       bgSize='cover'
       gap={5}
